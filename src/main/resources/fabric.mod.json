@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "microfighters",
+  "version": "${version}",
+  "name": "MicroFighters",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "LGPL-3.0",
+  "icon": "assets/microfighters/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "de.tomalbrc.microfighters.MicroFighters"
+    ]
+  },
+  "mixins": [
+    "microfighters.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
