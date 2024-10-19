@@ -10,7 +10,7 @@
       "item": "minecraft:redstone"
     },
     {
-      "item": "#minecraft:buttons"
+      "tag": "minecraft:buttons"
     }
   ],
   "result": {
