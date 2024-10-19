@@ -69,7 +69,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 8.0)
                 .add(Attributes.FOLLOW_RANGE, 10.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.24)
+                .add(Attributes.MOVEMENT_SPEED, 0.2)
                 .add(Attributes.ATTACK_DAMAGE, 2.0)
                 .add(Attributes.ARMOR, 1.0)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.2);
