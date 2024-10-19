@@ -29,11 +29,11 @@ public class ItemRegistry {
             register(color);
         }
 
-        registerClayObliterator();
+        registerDisintegrator();
 
         ITEM_GROUP = new CreativeModeTab.Builder(null, -1)
                 .title(Component.literal("Micro Fighters").withStyle(ChatFormatting.DARK_GRAY))
-                .icon(Items.CLAY_BALL::getDefaultInstance)
+                .icon(Items.TERRACOTTA::getDefaultInstance)
                 .displayItems((parameters, output) -> CUSTOM_ITEMS.forEach((key, value) -> output.accept(value)))
                 .build();
 
@@ -51,7 +51,7 @@ public class ItemRegistry {
         DispenserBlock.registerBehavior(item, FighterSpawnItem.DISPENSE_BEHAVIOUR);
     }
 
-    static public void registerClayObliterator() {
+    static public void registerDisintegrator() {
         Item item = new DisintegratorItem();
         ResourceLocation identifier = ResourceLocation.fromNamespaceAndPath(MicroFighters.MOD_ID, "disintegrator");
         Registry.register(BuiltInRegistries.ITEM, identifier, item);
