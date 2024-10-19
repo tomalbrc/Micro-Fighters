@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "fighter",
+  "ingredients": [
+    {
+      "item": "minecraft:soul_sand"
+    },
+    {
+      "item": "minecraft:red_terracotta"
+    }
+  ],
+  "result": {
+    "item": "microfighters:red_fighter"
+  }
+}

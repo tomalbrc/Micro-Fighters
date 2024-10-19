@@ -1,0 +1,40 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_soul_sand": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:soul_sand"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_soul_sand"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "microfighters:white_fighter",
+      "microfighters:black_fighter",
+      "microfighters:gray_fighter",
+      "microfighters:light_gray_fighter",
+      "microfighters:cyan_fighter",
+      "microfighters:brown_fighter",
+      "microfighters:orange_fighter",
+      "microfighters:yellow_fighter",
+      "microfighters:magenta_fighter",
+      "microfighters:purple_fighter",
+      "microfighters:blue_fighter",
+      "microfighters:light_blue_fighter",
+      "microfighters:green_fighter",
+      "microfighters:lime_fighter",
+      "microfighters:pink_fighter",
+      "microfighters:red_fighter"
+    ]
+  }
+}

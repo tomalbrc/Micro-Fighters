@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "fighter",
+  "ingredients": [
+    {
+      "item": "minecraft:ender_eye"
+    },
+    {
+      "item": "minecraft:redstone"
+    },
+    {
+      "item": "#minecraft:buttons"
+    }
+  ],
+  "result": {
+    "item": "microfighters:disintegrator"
+  }
+}
