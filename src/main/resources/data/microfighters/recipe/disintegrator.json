@@ -3,15 +3,9 @@
   "category": "misc",
   "group": "fighter",
   "ingredients": [
-    {
-      "item": "minecraft:ender_eye"
-    },
-    {
-      "item": "minecraft:redstone"
-    },
-    {
-      "tag": "minecraft:buttons"
-    }
+    "minecraft:ender_eye",
+    "minecraft:redstone",
+    "#minecraft:buttons"
   ],
   "result": {
     "id": "microfighters:disintegrator"

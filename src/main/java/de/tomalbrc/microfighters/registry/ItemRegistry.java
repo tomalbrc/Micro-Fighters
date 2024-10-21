@@ -8,12 +8,11 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.DispenserBlock;
 
 public class ItemRegistry {
@@ -43,18 +42,22 @@ public class ItemRegistry {
     public static void register() {}
 
     static public void register(DyeColor color) {
-        Item item = new FighterSpawnItem(color);
         ResourceLocation identifier = ResourceLocation.fromNamespaceAndPath(MicroFighters.MOD_ID, color.getName() + "_fighter");
-        Registry.register(BuiltInRegistries.ITEM, identifier, item);
+        ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, identifier);
+
+        Item item = new FighterSpawnItem(color, new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON).setId(key));
+        Registry.register(BuiltInRegistries.ITEM, key, item);
         CUSTOM_ITEMS.putIfAbsent(identifier, item);
 
         DispenserBlock.registerBehavior(item, FighterSpawnItem.DISPENSE_BEHAVIOUR);
     }
 
     static public void registerDisintegrator() {
-        Item item = new DisintegratorItem();
         ResourceLocation identifier = ResourceLocation.fromNamespaceAndPath(MicroFighters.MOD_ID, "disintegrator");
-        Registry.register(BuiltInRegistries.ITEM, identifier, item);
+        ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, identifier);
+
+        Item item = new DisintegratorItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE).setId(key));
+        Registry.register(BuiltInRegistries.ITEM, key, item);
         CUSTOM_ITEMS.putIfAbsent(identifier, item);
     }
 }
