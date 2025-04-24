@@ -107,7 +107,7 @@ public class FighterSpawnItem extends Item implements PolymerItem {
             mob.yHeadRot = mob.getYRot();
             mob.yBodyRot = mob.getYRot();
             mob.finalizeSpawn((ServerLevel) level, level.getCurrentDifficultyAt(mob.blockPosition()), EntitySpawnReason.SPAWN_ITEM_USE, null);
-            mob.moveTo(blockPos);
+            mob.setPos(blockPos);
             ((ServerLevel) level).addFreshEntityWithPassengers(mob);
         }
 
