@@ -8,7 +8,9 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
@@ -43,8 +45,8 @@ public class ItemRegistry {
     public static void register() {}
 
     static public void register(DyeColor color) {
-        Item item = new FighterSpawnItem(color);
         ResourceLocation identifier = ResourceLocation.fromNamespaceAndPath(MicroFighters.MOD_ID, color.getName() + "_fighter");
+        Item item = new FighterSpawnItem(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, identifier)), color);
         Registry.register(BuiltInRegistries.ITEM, identifier, item);
         CUSTOM_ITEMS.putIfAbsent(identifier, item);
 
@@ -52,8 +54,8 @@ public class ItemRegistry {
     }
 
     static public void registerDisintegrator() {
-        Item item = new DisintegratorItem();
         ResourceLocation identifier = ResourceLocation.fromNamespaceAndPath(MicroFighters.MOD_ID, "disintegrator");
+        Item item = new DisintegratorItem(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, identifier)));
         Registry.register(BuiltInRegistries.ITEM, identifier, item);
         CUSTOM_ITEMS.putIfAbsent(identifier, item);
     }

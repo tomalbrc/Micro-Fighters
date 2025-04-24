@@ -95,7 +95,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     }
 
     @Override
-    public boolean wantsToPickUp(ItemStack itemStack) {
+    public boolean wantsToPickUp(ServerLevel serverLevel, ItemStack itemStack) {
         return this.canHoldItem(itemStack);
     }
 
@@ -115,21 +115,21 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     }
 
     @Override
-    public boolean hurt(DamageSource damageSource, float f) {
+    public boolean hurtServer(ServerLevel level, DamageSource damageSource, float f) {
         this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GRAVEL_BREAK, this.getSoundSource(), .5f, 0.9f);
 
         if (damageSource.is(DamageTypeTags.IS_PLAYER_ATTACK)) {
-            this.kill();
+            this.kill(level);
             return false;
         } else {
-            return super.hurt(damageSource, f);
+            return super.hurtServer(level, damageSource, f);
         }
     }
 
     @Override
     public void aiStep() {
         if (this.isDeadOrDying() && this.level() instanceof ServerLevel serverLevel) {
-            if (this.item != null) this.spawnAtLocation(this.item);
+            if (this.item != null) this.spawnAtLocation(serverLevel, this.item);
             serverLevel.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, particleItem(this.color).getDefaultInstance()), this.getX(), this.getY(), this.getZ(), 20, 0.125, 0.125, 0.125, 0.05);
             this.dropCustomDeathLoot(serverLevel, this.damageSources().genericKill(), true);
             this.discard();
@@ -137,7 +137,6 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
 
         }
         super.aiStep();
-
     }
 
     @Override
@@ -175,8 +174,8 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     }
 
     @Override
-    public boolean doHurtTarget(Entity entity) {
-        boolean doHurt = super.doHurtTarget(entity);
+    public boolean doHurtTarget(ServerLevel serverLevel, Entity entity) {
+        boolean doHurt = super.doHurtTarget(serverLevel, entity);
         ItemStack weapon = this.getWeaponItem();
         if (weapon.is(Items.BLAZE_ROD)) {
             entity.setRemainingFireTicks(5*20);
@@ -185,7 +184,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     }
 
     @Override
-    public boolean isAlliedTo(Entity mob) {
+    public boolean considersEntityAsAlly(Entity mob) {
         return mob instanceof Fighter fighter && fighter.color == this.color;
     }
 
@@ -206,7 +205,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     }
 
     @Override
-    public EntityType<?> getPolymerEntityType(ServerPlayer player) {
+    public EntityType<?> getPolymerEntityType(PacketContext context) {
         return EntityType.PLAYER;
     }
 
@@ -216,7 +215,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     }
 
     @Override
-    public void modifyRawEntityAttributeData(List<ClientboundUpdateAttributesPacket.AttributeSnapshot> data, PacketContext context, boolean initial) {
+    public void modifyRawEntityAttributeData(List<ClientboundUpdateAttributesPacket.AttributeSnapshot> data, ServerPlayer player, boolean initial) {
         data.add(new ClientboundUpdateAttributesPacket.AttributeSnapshot(Attributes.SCALE, MicroFighters.SCALE, ImmutableList.of()));
     }
 
@@ -225,7 +224,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
         var packet = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED));
         var gameProfile = new GameProfile(this.getUUID(), "Fighter");
         Util.modifyProfileForColor(this.color, gameProfile);
-        packet.entries().add(new ClientboundPlayerInfoUpdatePacket.Entry(this.getUUID(), gameProfile, false, 0, GameType.ADVENTURE, Component.empty(), null));
+        packet.entries().add(new ClientboundPlayerInfoUpdatePacket.Entry(this.getUUID(), gameProfile, false, 0, GameType.ADVENTURE, Component.empty(), false, 0, null));
         packetConsumer.accept(packet);
     }
 
@@ -284,7 +283,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     public void readAdditionalSaveData(CompoundTag compoundTag) {
         super.readAdditionalSaveData(compoundTag);
         if (compoundTag.contains(DROP))
-            this.item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(Objects.requireNonNull(compoundTag.get(DROP)).getAsString()));
+            this.item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(Objects.requireNonNull(compoundTag.get(DROP)).getAsString())).orElseThrow().value();
         if (compoundTag.contains(COLOR))
             this.color = DyeColor.byId(compoundTag.getInt(COLOR));
     }

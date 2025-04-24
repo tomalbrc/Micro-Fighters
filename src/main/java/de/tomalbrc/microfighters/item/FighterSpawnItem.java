@@ -8,12 +8,10 @@ import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
@@ -25,7 +23,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 import java.util.Objects;
@@ -47,8 +45,8 @@ public class FighterSpawnItem extends Item implements PolymerItem {
         }
     };
 
-    public FighterSpawnItem(DyeColor color) {
-        super(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON));
+    public FighterSpawnItem(Properties properties, DyeColor color) {
+        super(properties.stacksTo(16).rarity(Rarity.UNCOMMON));
         this.color = color;
     }
 
@@ -67,20 +65,20 @@ public class FighterSpawnItem extends Item implements PolymerItem {
     }
 
     @Override
-    public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayer serverPlayer) {
+    public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
         return Fighter.particleItem(this.color);
     }
 
     @Override
     @NotNull
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionHand) {
+    public InteractionResult use(Level level, Player player, InteractionHand interactionHand) {
         ItemStack itemStack = player.getItemInHand(interactionHand);
         BlockHitResult blockHitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
 
         if (blockHitResult.getType() != HitResult.Type.BLOCK) {
-            return InteractionResultHolder.pass(itemStack);
+            return InteractionResult.PASS;
         } else if (!(level instanceof ServerLevel)) {
-            return InteractionResultHolder.success(itemStack);
+            return InteractionResult.PASS;
         } else {
             BlockPos blockPos = blockHitResult.getBlockPos().above();
             int count = itemStack.getCount();
@@ -93,7 +91,7 @@ public class FighterSpawnItem extends Item implements PolymerItem {
             }
 
             player.awardStat(Stats.ITEM_USED.get(this));
-            return InteractionResultHolder.consume(itemStack);
+            return InteractionResult.CONSUME;
         }
     }
 
@@ -102,13 +100,13 @@ public class FighterSpawnItem extends Item implements PolymerItem {
     }
 
     public Fighter spawn(Level level, Vec3 blockPos, Item item) {
-        Fighter mob = MobRegistry.FIGHTER.create(level);
+        Fighter mob = MobRegistry.FIGHTER.create(level, EntitySpawnReason.SPAWN_ITEM_USE);
         if (mob != null) {
             mob.setColor(this.color);
             mob.setItem(item);
             mob.yHeadRot = mob.getYRot();
             mob.yBodyRot = mob.getYRot();
-            mob.finalizeSpawn((ServerLevel) level, level.getCurrentDifficultyAt(mob.blockPosition()), MobSpawnType.SPAWN_EGG, null);
+            mob.finalizeSpawn((ServerLevel) level, level.getCurrentDifficultyAt(mob.blockPosition()), EntitySpawnReason.SPAWN_ITEM_USE, null);
             mob.moveTo(blockPos);
             ((ServerLevel) level).addFreshEntityWithPassengers(mob);
         }
@@ -119,6 +117,6 @@ public class FighterSpawnItem extends Item implements PolymerItem {
     @Override
     @NotNull
     public InteractionResult useOn(UseOnContext useOnContext) {
-        return this.use(useOnContext.getLevel(), Objects.requireNonNull(useOnContext.getPlayer()), useOnContext.getHand()).getResult();
+        return this.use(useOnContext.getLevel(), Objects.requireNonNull(useOnContext.getPlayer()), useOnContext.getHand());
     }
 }
