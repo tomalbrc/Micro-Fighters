@@ -81,9 +81,9 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
         this.setCanPickUpLoot(true);
         this.setInvisible(true);
         this.setSilent(true);
-        Arrays.fill(this.armorDropChances, 1);
-        Arrays.fill(this.handDropChances, 1);
-        this.bodyArmorDropChance = 1;
+        for (EquipmentSlot value : EquipmentSlot.values()) {
+            this.setDropChance(value, 1);
+        }
     }
 
     public void setItem(Item item) {
@@ -146,11 +146,6 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
         if (this.isOnFire() && this.level() instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.FLAME, this.getX(), this.getY(), this.getZ(), 1, 0, 0, 0, 0);
         }
-    }
-
-    @Override
-    protected float getEquipmentDropChance(EquipmentSlot equipmentSlot) {
-        return 1;
     }
 
     public void setColor(DyeColor color) {
@@ -276,15 +271,15 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     public void addAdditionalSaveData(CompoundTag compoundTag) {
         super.addAdditionalSaveData(compoundTag);
         compoundTag.putString(DROP, BuiltInRegistries.ITEM.getKey(this.item).toString());
-        compoundTag.putInt(COLOR, this.color.getId());this.discard();
+        compoundTag.putInt(COLOR, this.color.getId());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compoundTag) {
         super.readAdditionalSaveData(compoundTag);
         if (compoundTag.contains(DROP))
-            this.item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(Objects.requireNonNull(compoundTag.get(DROP)).getAsString())).orElseThrow().value();
+            this.item = BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(Objects.requireNonNull(compoundTag.getString(DROP)).orElseThrow()));
         if (compoundTag.contains(COLOR))
-            this.color = DyeColor.byId(compoundTag.getInt(COLOR));
+            this.color = DyeColor.byId(compoundTag.getInt(COLOR).orElseThrow());
     }
 }
