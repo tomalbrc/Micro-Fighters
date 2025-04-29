@@ -29,7 +29,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -77,7 +76,7 @@ public class FighterSpawnItem extends Item implements PolymerItem {
 
     @Override
     public @Nullable ResourceLocation getPolymerItemModel(ItemStack stack, PacketContext context) {
-        return Fighter.particleItem(this.color).components().get(DataComponents.ITEM_MODEL);
+        return this.getPolymerItem(stack, context).components().get(DataComponents.ITEM_MODEL);
     }
 
     @Override
