@@ -4,9 +4,11 @@ import de.tomalbrc.microfighters.entity.Fighter;
 import de.tomalbrc.microfighters.registry.MobRegistry;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -14,6 +16,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -23,10 +26,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class FighterSpawnItem extends Item implements PolymerItem {
     private final DyeColor color;
@@ -50,8 +55,9 @@ public class FighterSpawnItem extends Item implements PolymerItem {
         this.color = color;
     }
 
-    public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, List<Component> list, TooltipFlag tooltipFlag) {
-        list.add(Component.literal("Micro Fighter"));
+    @Override
+    public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, TooltipDisplay tooltipDisplay, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
+        consumer.accept(Component.literal("Micro Fighter"));
     }
 
     @Override
@@ -67,6 +73,11 @@ public class FighterSpawnItem extends Item implements PolymerItem {
     @Override
     public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
         return Fighter.particleItem(this.color);
+    }
+
+    @Override
+    public @Nullable ResourceLocation getPolymerItemModel(ItemStack stack, PacketContext context) {
+        return Fighter.particleItem(this.color).components().get(DataComponents.ITEM_MODEL);
     }
 
     @Override
