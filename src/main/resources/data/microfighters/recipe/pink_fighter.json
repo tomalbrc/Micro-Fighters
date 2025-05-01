@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "fighter",
   "ingredients": [
-    {
-      "item": "minecraft:soul_sand"
-    },
-    {
-      "item": "minecraft:pink_terracotta"
-    }
+    "minecraft:soul_sand",
+    "minecraft:pink_terracotta"
   ],
   "result": {
     "id": "microfighters:pink_fighter"

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.authlib.GameProfile;
 import de.tomalbrc.microfighters.MicroFighters;
 import de.tomalbrc.microfighters.Util;
+import de.tomalbrc.microfighters.item.FighterSpawnItem;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.mixin.entity.EntityAttributesS2CPacketAccessor;
@@ -281,5 +282,15 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
             this.item = BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(Objects.requireNonNull(compoundTag.getString(DROP)).orElseThrow()));
         if (compoundTag.contains(COLOR))
             this.color = DyeColor.byId(compoundTag.getInt(COLOR).orElseThrow());
+    }
+
+    @Override
+    public @NotNull Component getName() {
+        return this.color != null ? Component.literal(FighterSpawnItem.capitalize(this.color.name().toLowerCase()) + " Fighter") : Component.literal("Micro Fighter");
+    }
+
+    @Override
+    protected @NotNull Component getTypeName() {
+        return this.getName();
     }
 }

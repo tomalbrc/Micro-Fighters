@@ -65,7 +65,7 @@ public class FighterSpawnItem extends Item implements PolymerItem {
         return Component.literal(capitalize(this.color.name().toLowerCase()) + " Fighter");
     }
 
-    private String capitalize(final String line) {
+    public static String capitalize(final String line) {
         return Character.toUpperCase(line.charAt(0)) + line.substring(1);
     }
 

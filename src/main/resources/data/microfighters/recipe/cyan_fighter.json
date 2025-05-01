@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "fighter",
   "ingredients": [
-    {
-      "item": "minecraft:soul_sand"
-    },
-    {
-      "item": "minecraft:cyan_terracotta"
-    }
+    "minecraft:soul_sand",
+    "minecraft:cyan_terracotta"
   ],
   "result": {
     "id": "microfighters:cyan_fighter"
