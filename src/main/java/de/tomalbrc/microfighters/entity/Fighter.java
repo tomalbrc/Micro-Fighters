@@ -47,6 +47,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import xyz.nucleoid.packettweaker.PacketContext;
@@ -70,10 +71,12 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 8.0)
                 .add(Attributes.FOLLOW_RANGE, 10.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.2)
+                .add(Attributes.MOVEMENT_SPEED, 0.15)
                 .add(Attributes.ATTACK_DAMAGE, 2.0)
+                .add(Attributes.ENTITY_INTERACTION_RANGE, 0.1)
+                .add(Attributes.BLOCK_INTERACTION_RANGE, 0.1)
                 .add(Attributes.ARMOR, 1.0)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 0.2);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.1);
     }
 
     public Fighter(EntityType<? extends Fighter> entityEntityType, Level world) {
@@ -292,5 +295,20 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     @Override
     protected @NotNull Component getTypeName() {
         return this.getName();
+    }
+
+    @Override
+    protected @NotNull AABB getAttackBoundingBox() {
+        Entity vehicle = this.getVehicle();
+        AABB res;
+        if (vehicle != null) {
+            AABB vehicleBb = vehicle.getBoundingBox();
+            AABB thisBb = this.getBoundingBox();
+            res = new AABB(Math.min(thisBb.minX, vehicleBb.minX), thisBb.minY, Math.min(thisBb.minZ, vehicleBb.minZ), Math.max(thisBb.maxX, vehicleBb.maxX), thisBb.maxY, Math.max(thisBb.maxZ, vehicleBb.maxZ));
+        } else {
+            res = this.getBoundingBox();
+        }
+
+        return res.inflate(0.2, 0.0F, 0.2);
     }
 }
