@@ -14,7 +14,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
@@ -47,12 +46,16 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class Fighter extends PathfinderMob implements PolymerEntity {
@@ -131,7 +134,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     }
 
     @Override
-    public void aiStep() {
+    public void customServerAiStep(ServerLevel level) {
         if (this.isDeadOrDying() && this.level() instanceof ServerLevel serverLevel) {
             if (this.item != null) this.spawnAtLocation(serverLevel, this.item);
             serverLevel.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, particleItem(this.color).getDefaultInstance()), this.getX(), this.getY(), this.getZ(), 20, 0.125, 0.125, 0.125, 0.05);
@@ -140,7 +143,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
             return;
 
         }
-        super.aiStep();
+        super.customServerAiStep(level);
     }
 
     @Override
@@ -272,19 +275,23 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag compoundTag) {
-        super.addAdditionalSaveData(compoundTag);
-        compoundTag.putString(DROP, BuiltInRegistries.ITEM.getKey(this.item).toString());
-        compoundTag.putInt(COLOR, this.color.getId());
+    public void addAdditionalSaveData(ValueOutput valueOutput) {
+        super.addAdditionalSaveData(valueOutput);
+        valueOutput.putString(DROP, BuiltInRegistries.ITEM.getKey(this.item).toString());
+        valueOutput.putInt(COLOR, this.color.getId());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag compoundTag) {
+    public void readAdditionalSaveData(ValueInput compoundTag) {
         super.readAdditionalSaveData(compoundTag);
-        if (compoundTag.contains(DROP))
-            this.item = BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(Objects.requireNonNull(compoundTag.getString(DROP)).orElseThrow()));
-        if (compoundTag.contains(COLOR))
-            this.color = DyeColor.byId(compoundTag.getInt(COLOR).orElseThrow());
+
+        compoundTag.getString(DROP).ifPresent(drop -> {
+            this.item = BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(drop));
+        });
+
+        compoundTag.getInt(COLOR).ifPresent(color -> {
+            this.color = DyeColor.byId(color);
+        });
     }
 
     @Override
@@ -309,6 +316,6 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
             res = this.getBoundingBox();
         }
 
-        return res.inflate(0.2, 0.0F, 0.2);
+        return res.inflate(0.4, 0.0F, 0.4);
     }
 }
