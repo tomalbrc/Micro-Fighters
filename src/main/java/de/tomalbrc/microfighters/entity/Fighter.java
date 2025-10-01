@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.authlib.GameProfile;
 import de.tomalbrc.microfighters.MicroFighters;
 import de.tomalbrc.microfighters.Util;
+import de.tomalbrc.microfighters.item.FighterSpawnItem;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.mixin.entity.EntityAttributesS2CPacketAccessor;
@@ -13,7 +14,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
@@ -46,11 +46,16 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class Fighter extends PathfinderMob implements PolymerEntity {
@@ -69,10 +74,12 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 8.0)
                 .add(Attributes.FOLLOW_RANGE, 10.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.2)
+                .add(Attributes.MOVEMENT_SPEED, 0.15)
                 .add(Attributes.ATTACK_DAMAGE, 2.0)
+                .add(Attributes.ENTITY_INTERACTION_RANGE, 0.1)
+                .add(Attributes.BLOCK_INTERACTION_RANGE, 0.1)
                 .add(Attributes.ARMOR, 1.0)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 0.2);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.1);
     }
 
     public Fighter(EntityType<? extends Fighter> entityEntityType, Level world) {
@@ -81,9 +88,9 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
         this.setCanPickUpLoot(true);
         this.setInvisible(true);
         this.setSilent(true);
-        Arrays.fill(this.armorDropChances, 1);
-        Arrays.fill(this.handDropChances, 1);
-        this.bodyArmorDropChance = 1;
+        for (EquipmentSlot value : EquipmentSlot.values()) {
+            this.setDropChance(value, 1);
+        }
     }
 
     public void setItem(Item item) {
@@ -115,19 +122,19 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     }
 
     @Override
-    public boolean hurtServer(ServerLevel serverLevel, DamageSource damageSource, float f) {
-        serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GRAVEL_BREAK, this.getSoundSource(), .5f, 0.9f);
+    public boolean hurtServer(ServerLevel level, DamageSource damageSource, float f) {
+        this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GRAVEL_BREAK, this.getSoundSource(), .5f, 0.9f);
 
         if (damageSource.is(DamageTypeTags.IS_PLAYER_ATTACK)) {
-            this.kill(serverLevel);
+            this.kill(level);
             return false;
         } else {
-            return super.hurtServer(serverLevel, damageSource, f);
+            return super.hurtServer(level, damageSource, f);
         }
     }
 
     @Override
-    public void aiStep() {
+    public void customServerAiStep(ServerLevel level) {
         if (this.isDeadOrDying() && this.level() instanceof ServerLevel serverLevel) {
             if (this.item != null) this.spawnAtLocation(serverLevel, this.item);
             serverLevel.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, particleItem(this.color).getDefaultInstance()), this.getX(), this.getY(), this.getZ(), 20, 0.125, 0.125, 0.125, 0.05);
@@ -136,8 +143,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
             return;
 
         }
-        super.aiStep();
-
+        super.customServerAiStep(level);
     }
 
     @Override
@@ -147,11 +153,6 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
         if (this.isOnFire() && this.level() instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.FLAME, this.getX(), this.getY(), this.getZ(), 1, 0, 0, 0, 0);
         }
-    }
-
-    @Override
-    protected float getEquipmentDropChance(EquipmentSlot equipmentSlot) {
-        return 1;
     }
 
     public void setColor(DyeColor color) {
@@ -216,7 +217,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     }
 
     @Override
-    public void modifyRawEntityAttributeData(List<ClientboundUpdateAttributesPacket.AttributeSnapshot> data, ServerPlayer serverPlayer, boolean initial) {
+    public void modifyRawEntityAttributeData(List<ClientboundUpdateAttributesPacket.AttributeSnapshot> data, ServerPlayer player, boolean initial) {
         data.add(new ClientboundUpdateAttributesPacket.AttributeSnapshot(Attributes.SCALE, MicroFighters.SCALE, ImmutableList.of()));
     }
 
@@ -225,7 +226,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
         var packet = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED));
         var gameProfile = new GameProfile(this.getUUID(), "Fighter");
         Util.modifyProfileForColor(this.color, gameProfile);
-        packet.entries().add(new ClientboundPlayerInfoUpdatePacket.Entry(this.getUUID(), gameProfile, false, 0, GameType.ADVENTURE, Component.empty(), 0, null));
+        packet.entries().add(new ClientboundPlayerInfoUpdatePacket.Entry(this.getUUID(), gameProfile, false, 0, GameType.ADVENTURE, Component.empty(), false, 0, null));
         packetConsumer.accept(packet);
     }
 
@@ -274,18 +275,47 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag compoundTag) {
-        super.addAdditionalSaveData(compoundTag);
-        compoundTag.putString(DROP, BuiltInRegistries.ITEM.getKey(this.item).toString());
-        compoundTag.putInt(COLOR, this.color.getId());this.discard();
+    public void addAdditionalSaveData(ValueOutput valueOutput) {
+        super.addAdditionalSaveData(valueOutput);
+        valueOutput.putString(DROP, BuiltInRegistries.ITEM.getKey(this.item).toString());
+        valueOutput.putInt(COLOR, this.color.getId());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag compoundTag) {
+    public void readAdditionalSaveData(ValueInput compoundTag) {
         super.readAdditionalSaveData(compoundTag);
-        if (compoundTag.contains(DROP))
-            this.item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(Objects.requireNonNull(compoundTag.get(DROP)).getAsString())).orElseThrow().value();
-        if (compoundTag.contains(COLOR))
-            this.color = DyeColor.byId(compoundTag.getInt(COLOR));
+
+        compoundTag.getString(DROP).ifPresent(drop -> {
+            this.item = BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(drop));
+        });
+
+        compoundTag.getInt(COLOR).ifPresent(color -> {
+            this.color = DyeColor.byId(color);
+        });
+    }
+
+    @Override
+    public @NotNull Component getName() {
+        return this.color != null ? Component.literal(FighterSpawnItem.capitalize(this.color.name().toLowerCase()) + " Fighter") : Component.literal("Micro Fighter");
+    }
+
+    @Override
+    protected @NotNull Component getTypeName() {
+        return this.getName();
+    }
+
+    @Override
+    protected @NotNull AABB getAttackBoundingBox() {
+        Entity vehicle = this.getVehicle();
+        AABB res;
+        if (vehicle != null) {
+            AABB vehicleBb = vehicle.getBoundingBox();
+            AABB thisBb = this.getBoundingBox();
+            res = new AABB(Math.min(thisBb.minX, vehicleBb.minX), thisBb.minY, Math.min(thisBb.minZ, vehicleBb.minZ), Math.max(thisBb.maxX, vehicleBb.maxX), thisBb.maxY, Math.max(thisBb.maxZ, vehicleBb.maxZ));
+        } else {
+            res = this.getBoundingBox();
+        }
+
+        return res.inflate(0.4, 0.0F, 0.4);
     }
 }

@@ -12,7 +12,10 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.DispenserBlock;
 
 public class ItemRegistry {
@@ -43,10 +46,8 @@ public class ItemRegistry {
 
     static public void register(DyeColor color) {
         ResourceLocation identifier = ResourceLocation.fromNamespaceAndPath(MicroFighters.MOD_ID, color.getName() + "_fighter");
-        ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, identifier);
-
-        Item item = new FighterSpawnItem(color, new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON).setId(key));
-        Registry.register(BuiltInRegistries.ITEM, key, item);
+        Item item = new FighterSpawnItem(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, identifier)), color);
+        Registry.register(BuiltInRegistries.ITEM, identifier, item);
         CUSTOM_ITEMS.putIfAbsent(identifier, item);
 
         DispenserBlock.registerBehavior(item, FighterSpawnItem.DISPENSE_BEHAVIOUR);
@@ -54,10 +55,8 @@ public class ItemRegistry {
 
     static public void registerDisintegrator() {
         ResourceLocation identifier = ResourceLocation.fromNamespaceAndPath(MicroFighters.MOD_ID, "disintegrator");
-        ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, identifier);
-
-        Item item = new DisintegratorItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE).setId(key));
-        Registry.register(BuiltInRegistries.ITEM, key, item);
+        Item item = new DisintegratorItem(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, identifier)));
+        Registry.register(BuiltInRegistries.ITEM, identifier, item);
         CUSTOM_ITEMS.putIfAbsent(identifier, item);
     }
 }

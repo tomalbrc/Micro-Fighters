@@ -11,18 +11,19 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class DisintegratorItem extends Item implements PolymerItem {
-    public DisintegratorItem(Item.Properties properties) {
-        super(properties);
+    public DisintegratorItem(Properties properties) {
+        super(properties.stacksTo(1).rarity(Rarity.RARE));
     }
 
     @Override
@@ -30,22 +31,19 @@ public class DisintegratorItem extends Item implements PolymerItem {
         return Items.ENDER_EYE;
     }
 
-    @Nullable
-    public ResourceLocation getPolymerItemModel(ItemStack stack, PacketContext context) {
-        return getPolymerItem(stack, context).getDefaultInstance().get(DataComponents.ITEM_MODEL);
+    @Override
+    public @Nullable ResourceLocation getPolymerItemModel(ItemStack stack, PacketContext context) {
+        return this.getPolymerItem(stack, context).components().get(DataComponents.ITEM_MODEL);
     }
 
     @Override
     @NotNull
     public InteractionResult use(Level level, Player player, InteractionHand interactionHand) {
-        if (!(level instanceof ServerLevel serverLevel))
-            return InteractionResult.PASS;
-
-        var entities = serverLevel.getNearbyEntities(Fighter.class, TargetingConditions.DEFAULT, player, player.getBoundingBox().inflate(16));
+        var entities = ((ServerLevel)level).getNearbyEntities(Fighter.class, TargetingConditions.DEFAULT, player, player.getBoundingBox().inflate(16));
         for (Fighter entity : entities) {
-            entity.kill(serverLevel);
+            entity.discard();
         }
-        return entities.isEmpty() ? InteractionResult.PASS : InteractionResult.SUCCESS_SERVER;
+        return entities.isEmpty() ? InteractionResult.PASS : InteractionResult.SUCCESS;
     }
 
     @Override
@@ -60,8 +58,9 @@ public class DisintegratorItem extends Item implements PolymerItem {
         return Component.literal("Micro Fighter Disintegrator");
     }
 
-    public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, List<Component> list, TooltipFlag tooltipFlag) {
-        list.add(Component.literal("Disintegrates all Micro Fighters"));
-        list.add(Component.literal("in a 16 block radius"));
+    @Override
+    public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, TooltipDisplay tooltipDisplay, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
+        consumer.accept(Component.literal("Disintegrates all Micro Fighters"));
+        consumer.accept(Component.literal("in a 16 block radius"));
     }
 }
