@@ -225,7 +225,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     public void onBeforeSpawnPacket(ServerPlayer player, Consumer<Packet<?>> packetConsumer) {
         var packet = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED));
         var gameProfile = new GameProfile(this.getUUID(), "Fighter");
-        Util.modifyProfileForColor(this.color, gameProfile);
+        gameProfile = Util.modifyProfileForColor(this.color, gameProfile);
         packet.entries().add(new ClientboundPlayerInfoUpdatePacket.Entry(this.getUUID(), gameProfile, false, 0, GameType.ADVENTURE, Component.empty(), false, 0, null));
         packetConsumer.accept(packet);
     }
