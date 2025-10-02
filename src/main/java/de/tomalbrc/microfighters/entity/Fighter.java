@@ -134,16 +134,18 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     }
 
     @Override
-    public void customServerAiStep(ServerLevel level) {
-        if (this.isDeadOrDying() && this.level() instanceof ServerLevel serverLevel) {
-            if (this.item != null) this.spawnAtLocation(serverLevel, this.item);
+    protected void tickDeath() {
+        super.tickDeath();
+
+        if (this.level() instanceof ServerLevel serverLevel) {
+            if (this.item != null)
+                this.spawnAtLocation(serverLevel, this.item);
+
             serverLevel.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, particleItem(this.color).getDefaultInstance()), this.getX(), this.getY(), this.getZ(), 20, 0.125, 0.125, 0.125, 0.05);
+
             this.dropCustomDeathLoot(serverLevel, this.damageSources().genericKill(), true);
             this.discard();
-            return;
-
         }
-        super.customServerAiStep(level);
     }
 
     @Override
