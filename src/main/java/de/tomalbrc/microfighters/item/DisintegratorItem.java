@@ -4,7 +4,7 @@ import de.tomalbrc.microfighters.entity.Fighter;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -32,7 +32,7 @@ public class DisintegratorItem extends Item implements PolymerItem {
     }
 
     @Override
-    public @Nullable ResourceLocation getPolymerItemModel(ItemStack stack, PacketContext context) {
+    public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
         return this.getPolymerItem(stack, context).components().get(DataComponents.ITEM_MODEL);
     }
 

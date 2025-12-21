@@ -8,7 +8,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -75,7 +75,7 @@ public class FighterSpawnItem extends Item implements PolymerItem {
     }
 
     @Override
-    public @Nullable ResourceLocation getPolymerItemModel(ItemStack stack, PacketContext context) {
+    public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
         return this.getPolymerItem(stack, context).components().get(DataComponents.ITEM_MODEL);
     }
 
@@ -116,7 +116,7 @@ public class FighterSpawnItem extends Item implements PolymerItem {
             mob.setItem(item);
             mob.yHeadRot = mob.getYRot();
             mob.yBodyRot = mob.getYRot();
-            mob.finalizeSpawn((ServerLevel) level, level.getCurrentDifficultyAt(mob.blockPosition()), EntitySpawnReason.SPAWN_ITEM_USE, null);
+            mob.finalizeSpawn((ServerLevel) level, ((ServerLevel) level).getCurrentDifficultyAt(mob.blockPosition()), EntitySpawnReason.SPAWN_ITEM_USE, null);
             mob.setPos(blockPos);
             ((ServerLevel) level).addFreshEntityWithPassengers(mob);
         }

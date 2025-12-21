@@ -7,7 +7,7 @@ import de.tomalbrc.microfighters.Util;
 import de.tomalbrc.microfighters.item.FighterSpawnItem;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
-import eu.pb4.polymer.core.mixin.entity.EntityAttributesS2CPacketAccessor;
+import eu.pb4.polymer.core.mixin.entity.ClientboundUpdateAttributesPacketAccessor;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.core.BlockPos;
@@ -17,7 +17,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -59,7 +59,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class Fighter extends PathfinderMob implements PolymerEntity {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(MicroFighters.MOD_ID, "fighter");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(MicroFighters.MOD_ID, "fighter");
     public static final String DROP = "drop";
     public static final String COLOR = "color";
 
@@ -238,7 +238,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
 
         var attributesPacket = new ClientboundUpdateAttributesPacket(this.getId(), List.of());
         var attributeSnapshots = List.of(new ClientboundUpdateAttributesPacket.AttributeSnapshot(Attributes.SCALE, MicroFighters.SCALE, ImmutableList.of()));
-        ((EntityAttributesS2CPacketAccessor)attributesPacket).getEntries().addAll(attributeSnapshots);
+        ((ClientboundUpdateAttributesPacketAccessor)attributesPacket).getAttributes().addAll(attributeSnapshots);
         player.connection.send(attributesPacket);
 
         this.nametagHidingPassengerId = VirtualEntityUtils.requestEntityId();
@@ -288,7 +288,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
         super.readAdditionalSaveData(compoundTag);
 
         compoundTag.getString(DROP).ifPresent(drop -> {
-            this.item = BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(drop));
+            this.item = BuiltInRegistries.ITEM.getValue(Identifier.parse(drop));
         });
 
         compoundTag.getInt(COLOR).ifPresent(color -> {
@@ -307,7 +307,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     }
 
     @Override
-    protected @NotNull AABB getAttackBoundingBox() {
+    protected @NotNull AABB getAttackBoundingBox(double d) {
         Entity vehicle = this.getVehicle();
         AABB res;
         if (vehicle != null) {
@@ -318,6 +318,6 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
             res = this.getBoundingBox();
         }
 
-        return res.inflate(0.4, 0.0F, 0.4);
+        return res.inflate(d, 0, d);
     }
 }

@@ -8,7 +8,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.level.levelgen.Heightmap;
 
@@ -21,7 +21,7 @@ public class MobRegistry {
     );
 
     private static <T extends Entity> EntityType<T> register(EntityType.Builder<T> builder) {
-        EntityType<T> type = builder.build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("", "")));
+        EntityType<T> type = builder.build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath("", "")));
         PolymerEntityUtils.registerType(type);
         return Registry.register(BuiltInRegistries.ENTITY_TYPE, Fighter.ID, type);
     }
