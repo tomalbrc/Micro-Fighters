@@ -3,7 +3,7 @@ package de.tomalbrc.microfighters.registry;
 import de.tomalbrc.microfighters.MicroFighters;
 import de.tomalbrc.microfighters.item.DisintegratorItem;
 import de.tomalbrc.microfighters.item.FighterSpawnItem;
-import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
+import eu.pb4.polymer.core.api.item.PolymerCreativeModeTabUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
@@ -39,7 +39,7 @@ public class ItemRegistry {
                 .displayItems((parameters, output) -> CUSTOM_ITEMS.forEach((key, value) -> output.accept(value)))
                 .build();
 
-        PolymerItemGroupUtils.registerPolymerItemGroup(Identifier.fromNamespaceAndPath(MicroFighters.MOD_ID, "items"), ITEM_GROUP);
+        PolymerCreativeModeTabUtils.registerPolymerCreativeModeTab(Identifier.fromNamespaceAndPath(MicroFighters.MOD_ID, "items"), ITEM_GROUP);
     }
 
     public static void register() {}

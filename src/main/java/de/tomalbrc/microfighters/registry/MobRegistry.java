@@ -16,7 +16,7 @@ public class MobRegistry {
     public static final EntityType<Fighter> FIGHTER = register(
             FabricEntityType.Builder.createMob(Fighter::new, MobCategory.CREATURE, x -> x
                     .defaultAttributes(Fighter::createAttributes)
-                    .spawnRestriction(SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules)
+                    .spawnPlacement(SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules)
             ).sized(0.9f * MicroFighters.SCALE, 1.9f * MicroFighters.SCALE)
     );
 

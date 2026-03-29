@@ -10,6 +10,7 @@ import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.mixin.entity.ClientboundUpdateAttributesPacketAccessor;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -51,7 +52,6 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -141,7 +141,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
             if (this.item != null)
                 this.spawnAtLocation(serverLevel, this.item);
 
-            serverLevel.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, particleItem(this.color).getDefaultInstance()), this.getX(), this.getY(), this.getZ(), 20, 0.125, 0.125, 0.125, 0.05);
+            serverLevel.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, particleItem(this.color)), this.getX(), this.getY(), this.getZ(), 20, 0.125, 0.125, 0.125, 0.05);
 
             this.dropCustomDeathLoot(serverLevel, this.damageSources().genericKill(), true);
             this.discard();
@@ -225,7 +225,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
 
     @Override
     public void onBeforeSpawnPacket(ServerPlayer player, Consumer<Packet<?>> packetConsumer) {
-        var packet = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED));
+        var packet = PolymerEntityUtils.createMutablePlayerInfoUpdatePacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED));
         var gameProfile = new GameProfile(this.getUUID(), "Fighter");
         gameProfile = Util.modifyProfileForColor(this.color, gameProfile);
         packet.entries().add(new ClientboundPlayerInfoUpdatePacket.Entry(this.getUUID(), gameProfile, false, 0, GameType.ADVENTURE, Component.empty(), false, 0, null));
@@ -244,7 +244,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
         this.nametagHidingPassengerId = VirtualEntityUtils.requestEntityId();
         var entityPacket = new ClientboundAddEntityPacket(this.nametagHidingPassengerId, UUID.randomUUID(), player.getX(), player.getY(), player.getZ(), 0, 0, EntityType.BLOCK_DISPLAY, 0, Vec3.ZERO, 0.0);
         player.connection.send(entityPacket);
-        player.connection.send(VirtualEntityUtils.createRidePacket(this.getId(), IntList.of(this.nametagHidingPassengerId)));
+        player.connection.send(VirtualEntityUtils.createClientboundSetPassengersPacket(this.getId(), IntList.of(this.nametagHidingPassengerId)));
     }
 
     @Override
