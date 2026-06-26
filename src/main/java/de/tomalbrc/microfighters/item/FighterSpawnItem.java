@@ -42,7 +42,7 @@ public class FighterSpawnItem extends Item implements PolymerItem {
         public ItemStack dispense(BlockSource blockSource, ItemStack itemStack) {
             if (itemStack.getItem() instanceof FighterSpawnItem fighterSpawnItem) {
                 var pos = blockSource.pos().relative(blockSource.state().getValue(DispenserBlock.FACING));
-                fighterSpawnItem.spawn(blockSource.level(), pos.getBottomCenter(), itemStack.getItem());
+                fighterSpawnItem.spawn(blockSource.level(), Vec3.atBottomCenterOf(pos), itemStack.getItem());
                 blockSource.level().gameEvent(GameEvent.ENTITY_PLACE, pos, GameEvent.Context.of(blockSource.state()));
                 itemStack.shrink(1);
             }
@@ -107,7 +107,7 @@ public class FighterSpawnItem extends Item implements PolymerItem {
     }
 
     public Fighter spawn(Level level, BlockPos blockPos, Item item) {
-        return spawn(level, blockPos.getBottomCenter(), item);
+        return spawn(level, Vec3.atBottomCenterOf(blockPos), item);
     }
 
     public Fighter spawn(Level level, Vec3 blockPos, Item item) {

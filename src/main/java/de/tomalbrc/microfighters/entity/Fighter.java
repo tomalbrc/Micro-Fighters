@@ -210,7 +210,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
 
     @Override
     public EntityType<?> getPolymerEntityType(PacketContext context) {
-        return EntityType.PLAYER;
+        return EntityTypes.PLAYER;
     }
 
     @Override
@@ -242,7 +242,7 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
         player.connection.send(attributesPacket);
 
         this.nametagHidingPassengerId = VirtualEntityUtils.requestEntityId();
-        var entityPacket = new ClientboundAddEntityPacket(this.nametagHidingPassengerId, UUID.randomUUID(), player.getX(), player.getY(), player.getZ(), 0, 0, EntityType.BLOCK_DISPLAY, 0, Vec3.ZERO, 0.0);
+        var entityPacket = new ClientboundAddEntityPacket(this.nametagHidingPassengerId, UUID.randomUUID(), player.getX(), player.getY(), player.getZ(), 0, 0, EntityTypes.BLOCK_DISPLAY, 0, Vec3.ZERO, 0.0);
         player.connection.send(entityPacket);
         player.connection.send(VirtualEntityUtils.createClientboundSetPassengersPacket(this.getId(), IntList.of(this.nametagHidingPassengerId)));
     }
@@ -257,22 +257,22 @@ public class Fighter extends PathfinderMob implements PolymerEntity {
     @NotNull
     public static Item particleItem(DyeColor color) {
         return switch (color) {
-            case WHITE -> Items.WHITE_TERRACOTTA;
-            case ORANGE -> Items.ORANGE_TERRACOTTA;
-            case MAGENTA -> Items.MAGENTA_TERRACOTTA;
-            case LIGHT_BLUE -> Items.LIGHT_BLUE_TERRACOTTA;
-            case YELLOW -> Items.YELLOW_TERRACOTTA;
-            case LIME -> Items.LIME_TERRACOTTA;
-            case PINK -> Items.PINK_TERRACOTTA;
-            case GRAY -> Items.GRAY_TERRACOTTA;
-            case LIGHT_GRAY -> Items.LIGHT_GRAY_TERRACOTTA;
-            case CYAN -> Items.CYAN_TERRACOTTA;
-            case PURPLE -> Items.PURPLE_TERRACOTTA;
-            case BLUE -> Items.BLUE_TERRACOTTA;
-            case BROWN -> Items.BROWN_TERRACOTTA;
-            case GREEN -> Items.GREEN_TERRACOTTA;
-            case RED -> Items.RED_TERRACOTTA;
-            case BLACK -> Items.BLACK_TERRACOTTA;
+            case WHITE -> Items.DYED_TERRACOTTA.white();
+            case ORANGE -> Items.DYED_TERRACOTTA.orange();
+            case MAGENTA -> Items.DYED_TERRACOTTA.magenta();
+            case LIGHT_BLUE -> Items.DYED_TERRACOTTA.lightBlue();
+            case YELLOW -> Items.DYED_TERRACOTTA.yellow();
+            case LIME -> Items.DYED_TERRACOTTA.lime();
+            case PINK -> Items.DYED_TERRACOTTA.pink();
+            case GRAY -> Items.DYED_TERRACOTTA.gray();
+            case LIGHT_GRAY -> Items.DYED_TERRACOTTA.lightGray();
+            case CYAN -> Items.DYED_TERRACOTTA.cyan();
+            case PURPLE -> Items.DYED_TERRACOTTA.purple();
+            case BLUE -> Items.DYED_TERRACOTTA.blue();
+            case BROWN -> Items.DYED_TERRACOTTA.brown();
+            case GREEN -> Items.DYED_TERRACOTTA.green();
+            case RED -> Items.DYED_TERRACOTTA.red();
+            case BLACK -> Items.DYED_TERRACOTTA.black();
         };
     }
 
